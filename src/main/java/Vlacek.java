@@ -7,7 +7,7 @@ public class Vlacek {
     private Vagonek posledni = new Vagonek(VagonekType.POSTOVNI);
     private int delka = 2;
 
-    public Vlacek(){
+    public Vlacek() {
         lokomotiva.setNasledujici(posledni);
         lokomotiva.setUmisteni(1);
         posledni.setPredchozi(lokomotiva);
@@ -21,16 +21,56 @@ public class Vlacek {
      * Poštovní vagonek musí být vždy poslední vagonek lokomotivy
      * Při vkládání vagonku nezapomeňte vagonku přiřadit danou pozici ve vlaku
      * !!!!!!! POZOR !!!!!! pokud přidáváte vagonek jinak než na konec vlaku musíte všem následujícím vagonkům zvýšit jejich umístění - doporučuji si pro tento účel vytvořit privátní metodu
+     *
      * @param type
      */
+
+
     public void pridatVagonek(VagonekType type) {
+        Vagonek newvagonek = new Vagonek(type);
+
+        switch (type) {
+
+            case PRVNI_TRIDA:
+                newvagonek.setPredchozi(lokomotiva);
+                newvagonek.setNasledujici(lokomotiva.getNasledujici());
+                lokomotiva.getNasledujici().setPredchozi(newvagonek);
+                lokomotiva.setNasledujici(newvagonek);
+                nastavumistení();
+
+                delka++;
+                break;
+            case DRUHA_TRIDA:
+                newvagonek.setNasledujici(posledni);
+                newvagonek.setPredchozi(posledni.getPredchozi());
+                posledni.getPredchozi().setNasledujici(newvagonek);
+                posledni.setPredchozi(newvagonek);
+                nastavumistení();
+                delka++;
+
+
+                break;
+            case JIDELNI:
+
+                pridatJidelniVagonek();
+                nastavumistení();
+
+                delka++;
+
+
+                break;
+            case POSTOVNI:
+
+                break;
+        }
 
     }
+
 
     public Vagonek getVagonekByIndex(int index) {
         int i = 1;
         Vagonek atIndex = lokomotiva;
-        while(i < index) {
+        while (i < index) {
             atIndex = atIndex.getNasledujici();
             i++;
         }
@@ -41,11 +81,15 @@ public class Vlacek {
     /**
      * Touto metodou si můžete vrátit poslední vagonek daného typu
      * Pokud tedy budu chtít vrátit vagonek typu lokomotiva dostanu hned první vagonek
+     *
      * @param type
      * @return
      */
     public Vagonek getLastVagonekByType(VagonekType type) {
-        return null;
+        Vagonek last = new Vagonek(type);
+
+
+        return last;
     }
 
     /**
@@ -56,17 +100,87 @@ public class Vlacek {
      */
     public void pridatJidelniVagonek() {
         Vagonek jidelni = new Vagonek(VagonekType.JIDELNI);
+
+       int i = 2;
+        while (getVagonekByIndex(i).getType() == VagonekType.PRVNI_TRIDA) {
+            i++;
+
+        }
+        Vagonek AtIndexi = getVagonekByIndex(i);
+        AtIndexi.getPredchozi().setNasledujici(jidelni);
+        jidelni.setNasledujici(AtIndexi);
+        jidelni.setPredchozi(AtIndexi.getPredchozi());
+        AtIndexi.setPredchozi(jidelni);
+
+
+
+
+
+    }
+
+    public void nastavumistení() {
+        Vagonek newVagonek = lokomotiva.getNasledujici();
+        for (int i = 0; i < delka; i++) {
+            newVagonek.setUmisteni(newVagonek.getPredchozi().getUmisteni() + 1);
+            newVagonek = newVagonek.getNasledujici();
+
+        }
     }
 
     /**
      * Funkce vrátí počet vagonků daného typu
      * Dobré využití se najde v metodě @method(addJidelniVagonek)
+     *
      * @param type
      * @return
      */
     public int getDelkaByType(VagonekType type) {
-        return 0;
-    }
+        Vagonek temp = lokomotiva;
+        int delkabytype = 0;
+
+
+        switch (type) {
+            case LOKOMOTIVA:
+                for (int i = 0; i < delka; i++) {
+                    if (temp.getType() == VagonekType.LOKOMOTIVA) {
+                        delkabytype++;
+
+                    }
+                    temp = temp.getNasledujici();
+                }
+
+
+            case PRVNI_TRIDA:
+                for (int i = 0; i < delka; i++) {
+                    if (temp.getType() == VagonekType.PRVNI_TRIDA) {
+                        delkabytype++;
+
+                    }
+                    temp = temp.getNasledujici();
+                }
+
+                break;
+            case DRUHA_TRIDA:
+                for (int i = 0; i < delka; i++) {
+                    if (temp.getType() == VagonekType.DRUHA_TRIDA) {
+                        delkabytype++;
+
+                    }
+                    temp = temp.getNasledujici();
+                }
+
+
+                break;
+        }
+            return delkabytype;
+        }
+
+
+
+
+
+
+
 
     /**
      * Hledejte jidelni vagonky
@@ -74,6 +188,13 @@ public class Vlacek {
      */
     public List<Vagonek> getJidelniVozy() {
         List<Vagonek> jidelniVozy = new LinkedList<>();
+        int pomocny = 1;
+        for(int i = 0 ; i < delka; i++ ){
+            if (getVagonekByIndex(pomocny).getType() == VagonekType.JIDELNI){
+                jidelniVozy.add(getVagonekByIndex(pomocny));
+            }
+            pomocny++;
+        }
 
         return jidelniVozy;
     }
@@ -88,6 +209,8 @@ public class Vlacek {
     }
 
     public int getDelka() {
+
         return delka;
     }
+
 }
