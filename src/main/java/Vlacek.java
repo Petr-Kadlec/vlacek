@@ -30,7 +30,6 @@ public class Vlacek {
         Vagonek newvagonek = new Vagonek(type);
 
         switch (type) {
-
             case PRVNI_TRIDA:
                 newvagonek.setPredchozi(lokomotiva);
                 newvagonek.setNasledujici(lokomotiva.getNasledujici());
